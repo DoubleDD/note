@@ -1,111 +1,11 @@
 
 
-# Spring AOP 自定义方法拦截器
+# Spring AOP自定义方法拦截器
 
 
-```java
-@Aspect
-@Component
-@EnableAspectJAutoProxy
-public class DataSourceAspect {
- 
-    @Around("@annotation(com.xxx.DataSource)")
-    public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-        // 业务方法执行之前设置数据源...
-        doingSomthingBefore();
-
-        // 执行业务方法
-        Object result = joinPoint.proceed();
-
-        // 业务方法执行之后清除数据源设置...
-        doingSomthingAfter();
-        return result;
-    }
-}
-```
-
-
-## 需求
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 问题背景
+## 接口方法上的注解失效
 
 最近在spring-boot项目中做mysql读写分离时遇到了一些奇葩问题，问题现象：通过常规的spring aop去拦截带有自定义注解的方法时，发现只有注解写在实现类上面时才有效，写在接口上时却不生效。`所用的spring-boot版本为1.x版本`
-
-## 问题现场（aop代码）
 
 ```java
 @Aspect
@@ -257,14 +157,15 @@ public class TransactionConfig implements InitializingBean, BeanFactoryAware {
 
 实现一个自定义的方法拦截器：
 
-1. 你的bean需要是一个被`ProxyFactoryBean`创建的bean
-2. 需要有一个`Advisor`对象（`AbstractBeanFactoryPointcutAdvisor`），然后把这个advisor对象设置到`ProxyFactoryBean`中
+1. 创建`ProxyFactoryBean`
+2. 
+需要有一个`Advisor`对象（`AbstractBeanFactoryPointcutAdvisor`），然后把这个advisor对象设置到`ProxyFactoryBean`中
 3. 需要有一个`PointCut`对象（`StaticMethodMatcherPointcut`），将其设置到 advisor 对象中
 4. 需要有一个`Advice`对象（`MethodInterceptor`），将其设置到 advisor 对象中
 
 
 
-### demo 乞丐版
+### demo
 
 ```java
 /**
@@ -541,6 +442,7 @@ class TxInterceptorTest {
     }
 ```
 
+`advisor.setOrder(1)`
 那这个值是怎么取的呢，难道设置成1就一定会被先执行么，
 
 ![image-20200517212801475](/home/kedong/Pictures/order.png)
