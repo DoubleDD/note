@@ -2,9 +2,32 @@
 
 # Spring AOP 自定义方法拦截器
 
+
+```java
+@Aspect
+@Component
+@EnableAspectJAutoProxy
+public class DataSourceAspect {
+ 
+    @Around("@annotation(com.xxx.DataSource)")
+    public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
+        // 业务方法执行之前设置数据源...
+        doingSomthingBefore();
+
+        // 执行业务方法
+        Object result = joinPoint.proceed();
+
+        // 业务方法执行之后清除数据源设置...
+        doingSomthingAfter();
+        return result;
+    }
+}
+```
+
+
 ## 需求
 
-## 
+
 
 
 
@@ -80,7 +103,7 @@
 
 ## 问题背景
 
-最近在spring-boog项目中做mysql读写分离时遇到了一些奇葩问题，问题现象：通过常规的spring aop去拦截带有自定义注解的方法时，发现只有注解写在实现类上面时才有效，写在接口上时却不生效。`所用的spring-boot版本为1.x版本`
+最近在spring-boot项目中做mysql读写分离时遇到了一些奇葩问题，问题现象：通过常规的spring aop去拦截带有自定义注解的方法时，发现只有注解写在实现类上面时才有效，写在接口上时却不生效。`所用的spring-boot版本为1.x版本`
 
 ## 问题现场（aop代码）
 
