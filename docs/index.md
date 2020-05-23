@@ -1,17 +1,6 @@
-# Welcome to MkDocs
+# Welcome to Keetone's Blog
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
-
-## Commands
-
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+- [Spring AOP实现数据库读写分离](resources/Spring AOP实现数据库读写分离/)
+- [Spring AOP自定义方法拦截器](resources/Spring AOP自定义方法拦截器/)
+- [Spring Bean生命周期](resources/spring bean生命周期/)
+- [低配（8g内存）电脑如何设置spring-boot jvm内存](resources/spring boot jvm 内存设置/)
