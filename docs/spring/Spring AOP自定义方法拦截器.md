@@ -7,7 +7,7 @@
 
 ## 自定义方法拦截器
 
-### 前置准备代码，启动类，业务代码，自定义注解等，这些都可以换成自己的。
+### 1、前置准备代码，启动类，业务代码，自定义注解等，这些都可以换成自己的。
 ```java
 @SpringBootApplication
 public class DefaultProxyCreatorApplication {
@@ -57,7 +57,7 @@ public class Test2ServiceImpl implements Test2Service {
 public @interface Tx {
 }
 ```
-### 自定义拦截器核心代码
+### 2、自定义拦截器核心代码
 ```java
 public class TxInterceptor implements MethodInterceptor {
     @Override
@@ -94,7 +94,7 @@ public class TxMethodPointcutAdvisor extends StaticMethodMatcherPointcutAdvisor 
     }
 }
 ```
-### 配置方法拦截器，使其生效
+### 3、配置方法拦截器，使其生效
 ```java
 @Configuration
 public class MethodInterceptorConfig {
@@ -119,7 +119,7 @@ public class MethodInterceptorConfig {
     }
 }
 ```
-### 单元测试，功能验证
+### 4、单元测试，功能验证
 ```java
 @SpringBootTest
 class TxInterceptorTest {
