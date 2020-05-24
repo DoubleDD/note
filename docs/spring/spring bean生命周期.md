@@ -1,3 +1,4 @@
+# Spring Bean生命周期
 Bean factory implementations should support the standard bean lifecycle interfaces as far as possible. The full set of initialization methods and their standard order is:
 
 1. ==BeanNameAware's `setBeanName`==

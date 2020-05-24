@@ -4,7 +4,7 @@
 
 在spring中，多数据源问题可以通过`AbstractRoutingDataSource`和spring aop来解决。
 
-## 实现步骤及原理
+## 代码实现
 
 1. 继承抽象类`AbstractRoutingDataSource`，实现`determineCurrentLookupKey`方法。
 2. 创建切面拦截器，拦截符合条件的方法。
@@ -240,8 +240,7 @@ public class AopConfig {
 ```
 
 
-
-### AbstractRoutingDataSource详解
+## AbstractRoutingDataSource详解
 
 ![图-1](image-20200523161614781.png)
 
@@ -281,9 +280,12 @@ public class AopConfig {
 
 ​																									（图-8）
 
-### 方法拦截
+## spring aop自定义方法拦截器
 
-在本文的解决方案代码中并没有使用常规的aop拦截器写法，类似下面这种。因为在本解决方案中除了拦截了自定的`@Datasource`注解之外，还拦截了`@Transactional`注解。我们都知道`@Transactional`注解写在接口方法和实现类方法上是都可以生效的，那下面这种普通的aop写法对接口方法上的注解是无法拦截的，因此才使用了自定义方法拦截器的写法。对于如何解决spring aop无法拦截接口方法上的注解问题，在[Spring AOP自定义方法拦截器]()这篇文章里面有详细说明。
+在本文的解决方案代码中并没有使用常规的aop拦截器写法，类似下面这种。因为在本解决方案中除了拦截了自定的`@Datasource`注解之外，还拦截了`@Transactional`注解。我们都知道`@Transactional`注解写在接口方法和实现类方法上是都可以生效的，那下面这种普通的aop写法对接口方法上的注解是无法拦截的，因此才使用了自定义方法拦截器的写法。
+
+对于如何解决spring aop无法拦截接口方法上的注解问题，在[Spring AOP自定义方法拦截器](/spring/Spring AOP自定义方法拦截器/)这篇文章里面有详细说明。
+
 
 ```java
 @Aspect

@@ -1,11 +1,151 @@
-
-
 # Spring AOP自定义方法拦截器
 
 
-## 接口方法上的注解失效
 
-最近在spring-boot项目中做mysql读写分离时遇到了一些奇葩问题，问题现象：通过常规的spring aop去拦截带有自定义注解的方法时，发现只有注解写在实现类上面时才有效，写在接口上时却不生效。`所用的spring-boot版本为1.x版本`
+最近在spring-boot项目中做mysql读写分离时遇到了一些问题，通过常规的spring aop无法拦截接口方法上的注解。针对这个问题，通用的解决方案是`自定义方法拦截器`。
+本文将先给出具体的解决方案，然后再深入分析其中原理。
+
+## 自定义方法拦截器
+
+### 前置准备代码，启动类，业务代码，自定义注解等，这些都可以换成自己的。
+```java
+@SpringBootApplication
+public class DefaultProxyCreatorApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DefaultProxyCreatorApplication.class, args);
+    }
+}
+
+public interface Test2Service {
+    /**
+     * 被标记的方法
+     */
+    @Tx
+    void a();
+
+    void b();
+
+    void c();
+}
+
+@Service
+public class Test2ServiceImpl implements Test2Service {
+
+    @Override
+    public void a() {
+        System.out.println("test2 method a");
+    }
+
+    /**
+     * 被标记的方法
+     */
+    @Tx
+    @Override
+    public void b() {
+        System.out.println("test2 method b");
+    }
+
+    @Override
+    public void c() {
+        System.out.println("test2 method c");
+    }
+}
+
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface Tx {
+}
+```
+### 自定义拦截器核心代码
+```java
+public class TxInterceptor implements MethodInterceptor {
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+        String name = invocation.getMethod().getName();
+        System.out.println(String.format("------------%s: before----------", name));
+        Object object = invocation.proceed();
+        System.out.println(String.format("------------%s: after----------", name));
+        return object;
+    }
+}
+
+public class TxMethodPointcutAdvisor extends StaticMethodMatcherPointcutAdvisor {
+    /**
+     * 拦截规则：
+     * 1: 接口类名上有 @Tx 注解
+     * 2: 接口方法名上有 @Tx 注解
+     *
+     * @param method
+     * @param targetClass
+     * @return
+     */
+    @Override
+    public boolean matches(Method method, Class<?> targetClass) {
+        return methodCanPass(method) || classCanPass(method.getDeclaringClass());
+    }
+
+    private boolean methodCanPass(Method method) {
+        return method.isAnnotationPresent(Tx.class);
+    }
+
+    private boolean classCanPass(Class<?> clazz) {
+        return clazz.isAnnotationPresent(Tx.class);
+    }
+}
+```
+### 配置方法拦截器，使其生效
+```java
+@Configuration
+public class MethodInterceptorConfig {
+
+    @Bean
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
+        // 这个类就是自动代理创建器，能够自动的为每个bean生成代理
+        return new DefaultAdvisorAutoProxyCreator();
+    }
+
+    @Bean
+    public TxMethodPointcutAdvisor methodPointcutAdvisor(TxInterceptor txInterceptor) {
+        TxMethodPointcutAdvisor advisor = new TxMethodPointcutAdvisor();
+        advisor.setAdvice(txInterceptor);
+        return advisor;
+    }
+
+    @Bean
+    public TxInterceptor methodInterceptor() {
+        return new TxInterceptor();
+    }
+}
+```
+### 单元测试，功能验证
+```java
+@SpringBootTest
+class TxInterceptorTest {
+
+    @Autowired
+    private Test2Service test2Service;
+
+    @Test
+    void test1() {
+        test2Service.a();
+        System.out.println("\n");
+        test2Service.b();
+        System.out.println("\n");
+        test2Service.c();
+    }
+}
+```
+测试结果如下：
+
+![](test-result.png)
+
+可以看到`service#a`和`service#b`这两个方法都被拦截到了。其中方法 a 的注解在接口上，方法b的注解在实现类上，可见问题已解决。
+
+## 原理剖析
+
+## 接口方法上的注解为什么失效
 
 ```java
 @Aspect
