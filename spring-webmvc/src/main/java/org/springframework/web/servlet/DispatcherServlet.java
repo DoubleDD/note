@@ -1043,6 +1043,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
+				// 设置默认视图
 				applyDefaultViewName(processedRequest, mv);
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
@@ -1083,6 +1084,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * Do we need view name translation?
 	 */
 	private void applyDefaultViewName(HttpServletRequest request, @Nullable ModelAndView mv) throws Exception {
+		// 这里判断是否设置了视图，通过前面的分析，我们可以知道，由于我们的controller是void类型的，所以是没有设置视图的
 		if (mv != null && !mv.hasView()) {
 			String defaultViewName = getDefaultViewName(request);
 			if (defaultViewName != null) {
